@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Retro Tasker 98 | 클래식 모바일 할 일 관리</title>
+  <!-- Google Fonts: NeoDunggeunmo (레트로 도트 폰트) & D2Coding / Gulim -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Galmuri9&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    /* ─── 윈도우 98 / 레트로 클래식 팔레트 ─── */
+    :root {
+      --win-bg: #008080;         /* 윈도우 98 클래식 청록색 바탕화면 */
+      --win-gray: #c0c0c0;       /* 기본 윈도우 회색 */
+      --win-dark: #808080;       /* 어두운 그림자 회색 */
+      --win-darker: #404040;     /* 가장 어두운 검정 그림자 */
+      --win-light: #ffffff;      /* 밝은 하이라이트 흰색 */
+      --win-blue: #000080;       /* 타이틀 바 블루 */
+      --win-blue-light: #1084d0; /* 활성 타이틀 바 그라데이션 끝 */
+      --win-text: #000000;
+      --win-font: 'Galmuri9', 'Gulim', 'Dotum', -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--win-font);
+      -webkit-font-smoothing: none; /* 픽셀 폰트 선명도 */
+      user-select: none;
+    }
+
+    body {
+      min-height: 100vh;
+      background-color: var(--win-bg);
+      background-image: radial-gradient(rgba(0, 0, 0, 0.15) 1px, transparent 1px);
+      background-size: 4px 4px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 12px;
+    }
+
+    /* ─── 스마트폰 디바이스 프레임 ─── */
+    .phone-container {
+      width: 100%;
+      max-width: 390px;
+      height: 844px;
+      background-color: #2b2b2b;
+      border-radius: 44px;
+      padding: 12px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 4px #404040, inset 0 0 0 2px #1a1a1a;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 스마트폰 노치 & 스피커 */
+    .phone-notch {
+      position: absolute;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 24px;
+      background-color: #000;
+      border-radius: 20px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .phone-camera {
+      width: 8px;
+      height: 8px;
+      background-color: #0d1b2a;
+      border-radius: 50%;
+      box-shadow: inset 0 0 2px #415a77;
+    }
+
+    .phone-speaker {
+      width: 40px;
+      height: 4px;
+      background-color: #1a1a1a;
+      border-radius: 2px;
+    }
+
+    /* 스마트폰 스크린 영역 */
+    .phone-screen {
+      flex: 1;
+      background-color: var(--win-gray);
+      border-radius: 32px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      margin-top: 14px;
+      margin-bottom: 6px;
+      border: 2px solid #000;
+      position: relative;
+    }
+
+    /* ─── 레트로 윈도우 스타일 컴포넌트 ─── */
+    /* 1. 타이틀 바 */
+    .win-title-bar {
+      background: linear-gradient(90deg, var(--win-blue) 0%, var(--win-blue-light) 100%);
+      padding: 4px 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
+      font-size: 12px;
+      font-weight: bold;
+      height: 28px;
+    }
+
+    .win-title-text {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .win-title-controls {
+      display: flex;
+      gap: 2px;
+    }
+
+    .win-btn-box {
+      width: 16px;
+      height: 14px;
+      background-color: var(--win-gray);
+      border-top: 1px solid var(--win-light);
+      border-left: 1px solid var(--win-light);
+      border-right: 1px solid var(--win-darker);
+      border-bottom: 1px solid var(--win-darker);
+      color: #000;
+      font-size: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .win-btn-box:active {
+      border-top: 1px solid var(--win-darker);
+      border-left: 1px solid var(--win-darker);
+      border-right: 1px solid var(--win-light);
+      border-bottom: 1px solid var(--win-light);
+      padding: 1px 0 0 1px;
+    }
+
+    /* 2. 상단 메뉴 바 & 툴바 */
+    .win-menu-bar {
+      display: flex;
+      gap: 12px;
+      padding: 3px 8px;
+      font-size: 11px;
+      border-bottom: 1px solid var(--win-dark);
+      background-color: var(--win-gray);
+    }
+
+    .win-menu-item {
+      cursor: pointer;
+    }
+
+    .win-menu-item u {
+      text-decoration: underline;
+    }
+
+    .win-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 6px;
+      border-bottom: 2px solid var(--win-darker);
+      background-color: var(--win-gray);
+    }
+
+    /* 레트로 3D 버튼 */
+    .retro-btn {
+      background-color: var(--win-gray);
+      border-top: 2px solid var(--win-light);
+      border-left: 2px solid var(--win-light);
+      border-right: 2px solid var(--win-darker);
+      border-bottom: 2px solid var(--win-darker);
+      padding: 4px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      color: #000;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      outline: none;
+    }
+
+    .retro-btn:active {
+      border-top: 2px solid var(--win-darker);
+      border-left: 2px solid var(--win-darker);
+      border-right: 2px solid var(--win-light);
+      border-bottom: 2px solid var(--win-light);
+      padding: 5px 7px 3px 9px;
+    }
+
+    /* 3. 본문 스크롤 영역 */
+    .win-content {
+      flex: 1;
+      padding: 8px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* 레트로 인셋 박스 (오목한 박스) */
+    .inset-box {
+      background-color: #ffffff;
+      border-top: 2px solid var(--win-darker);
+      border-left: 2px solid var(--win-darker);
+      border-right: 2px solid var(--win-light);
+      border-bottom: 2px solid var(--win-light);
+      padding: 8px;
+    }
+
+    /* 프로그레스 바 */
+    .retro-progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      margin-bottom: 4px;
+    }
+
+    .retro-progress-bar {
+      flex: 1;
+      height: 16px;
+      background-color: #fff;
+      border-top: 1px solid var(--win-darker);
+      border-left: 1px solid var(--win-darker);
+      border-right: 1px solid var(--win-light);
+      border-bottom: 1px solid var(--win-light);
+      padding: 1px;
+      display: flex;
+      gap: 1px;
+    }
+
+    .retro-progress-block {
+      height: 100%;
+      background-color: var(--win-blue);
+      flex: 1;
+    }
+
+    /* 입력 폼 */
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background-color: var(--win-gray);
+      border-top: 1px solid var(--win-light);
+      border-left: 1px solid var(--win-light);
+      border-right: 1px solid var(--win-dark);
+      border-bottom: 1px solid var(--win-dark);
+      padding: 8px;
+    }
+
+    .retro-input-text {
+      width: 100%;
+      height: 28px;
+      background-color: #fff;
+      border-top: 2px solid var(--win-darker);
+      border-left: 2px solid var(--win-darker);
+      border-right: 2px solid var(--win-light);
+      border-bottom: 2px solid var(--win-light);
+      padding: 0 6px;
+      font-size: 12px;
+      color: #000;
+      outline: none;
+      user-select: text;
+    }
+
+    .input-sub-row {
+      display: flex;
+      gap: 4px;
+    }
+
+    .retro-select {
+      flex: 1;
+      height: 24px;
+      background-color: #fff;
+      border-top: 2px solid var(--win-darker);
+      border-left: 2px solid var(--win-darker);
+      border-right: 2px solid var(--win-light);
+      border-bottom: 2px solid var(--win-light);
+      font-size: 11px;
+      outline: none;
+    }
+
+    /* 탭 컨트롤 */
+    .retro-tabs {
+      display: flex;
+      gap: 2px;
+      margin-top: 2px;
+    }
+
+    .retro-tab {
+      padding: 4px 8px;
+      background-color: var(--win-gray);
+      border-top: 2px solid var(--win-light);
+      border-left: 2px solid var(--win-light);
+      border-right: 2px solid var(--win-darker);
+      border-bottom: none;
+      border-top-left-radius: 4px;
+      border-top-right-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+      margin-bottom: -1px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .retro-tab.active {
+      font-weight: bold;
+      padding-top: 5px;
+      margin-top: -2px;
+      z-index: 2;
+      background-color: #fff;
+    }
+
+    /* 리스트 박스 */
+    .todo-list-box {
+      flex: 1;
+      min-height: 240px;
+      max-height: 320px;
+      overflow-y: scroll;
+      background-color: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    /* 개별 투두 아이템 */
+    .retro-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 4px;
+      border-bottom: 1px dotted #ccc;
+      font-size: 12px;
+      cursor: pointer;
+      user-select: text;
+    }
+
+    .retro-item:hover {
+      background-color: #000080;
+      color: #fff;
+    }
+
+    .retro-item:hover .retro-badge {
+      color: #000;
+    }
+
+    .retro-item.completed .item-text {
+      text-decoration: line-through;
+      color: var(--win-dark);
+    }
+
+    .retro-item:hover.completed .item-text {
+      color: #aaa;
+    }
+
+    /* 픽셀 체크박스 */
+    .retro-chk {
+      width: 14px;
+      height: 14px;
+      background-color: #fff;
+      border-top: 1px solid var(--win-darker);
+      border-left: 1px solid var(--win-darker);
+      border-right: 1px solid var(--win-light);
+      border-bottom: 1px solid var(--win-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: #000;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    .item-content {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .item-text {
+      word-break: break-all;
+      line-height: 1.2;
+    }
+
+    .item-meta {
+      display: flex;
+      gap: 4px;
+      font-size: 9px;
+    }
+
+    .retro-badge {
+      padding: 1px 4px;
+      background-color: var(--win-gray);
+      border: 1px solid var(--win-dark);
+      font-size: 9px;
+    }
+
+    .badge-high {
+      background-color: #ffcccc;
+      color: #900;
+    }
+
+    .badge-dday {
+      background-color: #ffffcc;
+      color: #990;
+      font-weight: bold;
+    }
+
+    /* 아이템 액션 버튼 */
+    .item-actions {
+      display: flex;
+      gap: 2px;
+    }
+
+    .mini-btn {
+      width: 18px;
+      height: 18px;
+      padding: 0;
+      font-size: 9px;
+    }
+
+    /* 4. 상태 표시줄 (Status Bar) */
+    .win-status-bar {
+      height: 24px;
+      background-color: var(--win-gray);
+      border-top: 2px solid var(--win-light);
+      display: flex;
+      align-items: center;
+      padding: 0 4px;
+      gap: 4px;
+      font-size: 10px;
+    }
+
+    .status-panel {
+      border-top: 1px solid var(--win-darker);
+      border-left: 1px solid var(--win-darker);
+      border-right: 1px solid var(--win-light);
+      border-bottom: 1px solid var(--win-light);
+      padding: 2px 6px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+    }
+
+    .status-panel.flex-1 { flex: 1; }
+
+    /* 모달 대화상자 */
+    .win-modal-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0, 0, 0, 0.4);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 16px;
+    }
+
+    .win-modal-overlay.active {
+      display: flex;
+    }
+
+    .win-modal {
+      width: 100%;
+      background-color: var(--win-gray);
+      border-top: 2px solid var(--win-light);
+      border-left: 2px solid var(--win-light);
+      border-right: 2px solid var(--win-darker);
+      border-bottom: 2px solid var(--win-darker);
+      box-shadow: 4px 4px 0 #000;
+    }
+
+    .modal-body {
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      padding: 8px 10px;
+      border-top: 1px solid var(--win-light);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 스마트폰 프레임 -->
+  <div class="phone-container">
+    <!-- 상단 노치 & 스피커 -->
+    <div class="phone-notch">
+      <div class="phone-speaker"></div>
+      <div class="phone-camera"></div>
+    </div>
+
+    <!-- 스마트폰 내부 윈도우 스크린 -->
+    <div class="phone-screen">
+      
+      <!-- 1. 윈도우 98 타이틀 바 -->
+      <div class="win-title-bar">
+        <div class="win-title-text">
+          <i class="fa-solid fa-floppy-disk" style="color: #ffd700;"></i>
+          <span>TASKER98.EXE</span>
+        </div>
+        <div class="win-title-controls">
+          <div class="win-btn-box" title="최소화">_</div>
+          <div class="win-btn-box" title="최대화">□</div>
+          <div class="win-btn-box" id="sound-toggle-btn" title="사운드 토글">🔊</div>
+        </div>
+      </div>
+
+      <!-- 2. 메뉴 바 -->
+      <div class="win-menu-bar">
+        <span class="win-menu-item" id="menu-new"><u>F</u>ile(새작업)</span>
+        <span class="win-menu-item" id="menu-export"><u>E</u>xport(저장)</span>
+        <span class="win-menu-item" id="menu-import"><u>I</u>mport(열기)</span>
+        <span class="win-menu-item" id="menu-clear"><u>C</u>lear(정리)</span>
+      </div>
+      <input type="file" id="retro-file-input" accept=".json" style="display:none;">
+
+      <!-- 3. 메인 콘텐츠 영역 -->
+      <div class="win-content">
+        
+        <!-- 달성률 게이지 (윈도우 블록 게이지) -->
+        <div class="inset-box" style="padding: 6px;">
+          <div class="retro-progress-wrap">
+            <span>[진행도]</span>
+            <div class="retro-progress-bar" id="retro-progress-bar">
+              <!-- 블록들이 동적으로 채워짐 -->
+            </div>
+            <span id="retro-percent-text" style="font-weight:bold;">0%</span>
+          </div>
+        </div>
+
+        <!-- 할 일 입력 폼 (3D 인셋) -->
+        <div class="input-group">
+          <div style="font-size:11px; font-weight:bold;">[새 할 일 등록]</div>
+          <input type="text" id="retro-input" class="retro-input-text" placeholder="할 일을 입력하고 엔터..." autocomplete="off">
+          
+          <div class="input-sub-row">
+            <select id="retro-cat" class="retro-select">
+              <option value="업무">💼 업무</option>
+              <option value="공부">📚 공부</option>
+              <option value="개인">💡 개인</option>
+              <option value="쇼핑">🛒 쇼핑</option>
+              <option value="기타">📌 기타</option>
+            </select>
+            <select id="retro-prio" class="retro-select">
+              <option value="보통">🟡 보통</option>
+              <option value="높음">🔴 긴급</option>
+              <option value="낮음">🟢 여유</option>
+            </select>
+            <button id="retro-add-btn" class="retro-btn" style="flex-shrink:0; font-weight:bold;">
+              <i class="fa-solid fa-plus"></i> 추가
+            </button>
+          </div>
+        </div>
+
+        <!-- 탭 네비게이션 -->
+        <div class="retro-tabs">
+          <div class="retro-tab active" data-tab="all">전체</div>
+          <div class="retro-tab" data-tab="active">진행중</div>
+          <div class="retro-tab" data-tab="completed">완료됨</div>
+          <div class="retro-tab" data-tab="pinned">★고정</div>
+        </div>
+
+        <!-- 할 일 목록 (인셋 스크롤 박스) -->
+        <div class="inset-box todo-list-box" id="retro-todo-list">
+          <!-- 목록 아이템이 동적으로 렌더링됨 -->
+        </div>
+
+      </div>
+
+      <!-- 4. 상태 표시줄 (Status Bar) -->
+      <div class="win-status-bar">
+        <div class="status-panel flex-1" id="status-text">준비 완료 (Ready)</div>
+        <div class="status-panel" id="status-count">남음: 0개</div>
+        <div class="status-panel" id="status-time">12:00</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 윈도우 98 스타일 수정 모달 -->
+  <div class="win-modal-overlay" id="retro-modal-overlay">
+    <div class="win-modal">
+      <div class="win-title-bar">
+        <span>EDIT_TASK.EXE</span>
+        <div class="win-btn-box" id="modal-close-x">X</div>
+      </div>
+      <div class="modal-body">
+        <div style="font-size:11px; font-weight:bold;">할 일 내용 수정:</div>
+        <input type="text" id="modal-text-input" class="retro-input-text">
+        <div style="display:flex; gap:4px;">
+          <select id="modal-cat" class="retro-select">
+            <option value="업무">💼 업무</option>
+            <option value="공부">📚 공부</option>
+            <option value="개인">💡 개인</option>
+            <option value="쇼핑">🛒 쇼핑</option>
+            <option value="기타">📌 기타</option>
+          </select>
+          <select id="modal-prio" class="retro-select">
+            <option value="높음">🔴 긴급</option>
+            <option value="보통">🟡 보통</option>
+            <option value="낮음">🟢 여유</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="retro-btn" id="modal-cancel-btn">취소</button>
+        <button class="retro-btn" id="modal-save-btn" style="font-weight:bold;">저장(OK)</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ─── Web Audio API 8비트 레트로 비프음 ───
+    let soundEnabled = true;
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playBeep(freq = 440, type = 'square', duration = 0.08) {
+      if (!soundEnabled) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch(e) {}
+    }
+
+    function soundClick() { playBeep(600, 'square', 0.04); }
+    function soundCheck() { playBeep(880, 'triangle', 0.08); playBeep(1200, 'triangle', 0.12); }
+    function soundDelete() { playBeep(300, 'sawtooth', 0.08); }
+
+    // ─── 상태 관리 ───
+    let todos = JSON.parse(localStorage.getItem('retro_todos_98')) || [
+      { id: 'r1', text: '윈도우 98 부팅 디스켓 만들기', cat: '업무', prio: '높음', completed: false, pinned: true, createdAt: Date.now() },
+      { id: 'r2', text: '스타크래프트 립버전 다운로드', cat: '개인', prio: '보통', completed: true, pinned: false, createdAt: Date.now() - 5000 },
+      { id: 'r3', text: '정보 형성평가 알고리즘 복습', cat: '공부', prio: '높음', completed: false, pinned: false, createdAt: Date.now() - 10000 }
+    ];
+    let currentTab = 'all';
+    let editId = null;
+
+    // DOM 참조
+    const todoListEl = document.getElementById('retro-todo-list');
+    const inputEl = document.getElementById('retro-input');
+    const addBtn = document.getElementById('retro-add-btn');
+    const catSelect = document.getElementById('retro-cat');
+    const prioSelect = document.getElementById('retro-prio');
+    const tabs = document.querySelectorAll('.retro-tab');
+    const progressBar = document.getElementById('retro-progress-bar');
+    const percentText = document.getElementById('retro-percent-text');
+    const statusText = document.getElementById('status-text');
+    const statusCount = document.getElementById('status-count');
+    const statusTime = document.getElementById('status-time');
+    const soundToggleBtn = document.getElementById('sound-toggle-btn');
+
+    // 모달 DOM
+    const modalOverlay = document.getElementById('retro-modal-overlay');
+    const modalTextInput = document.getElementById('modal-text-input');
+    const modalCat = document.getElementById('modal-cat');
+    const modalPrio = document.getElementById('modal-prio');
+    const modalSaveBtn = document.getElementById('modal-save-btn');
+    const modalCancelBtn = document.getElementById('modal-cancel-btn');
+    const modalCloseX = document.getElementById('modal-close-x');
+
+    // 파일 입출력 DOM
+    const fileInput = document.getElementById('retro-file-input');
+    const menuNew = document.getElementById('menu-new');
+    const menuExport = document.getElementById('menu-export');
+    const menuImport = document.getElementById('menu-import');
+    const menuClear = document.getElementById('menu-clear');
+
+    // 초기화
+    function init() {
+      updateClock();
+      setInterval(updateClock, 1000);
+      render();
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2, '0');
+      const m = String(now.getMinutes()).padStart(2, '0');
+      statusTime.textContent = `${h}:${m}`;
+    }
+
+    function save() {
+      localStorage.setItem('retro_todos_98', JSON.stringify(todos));
+      render();
+    }
+
+    // ─── 렌더링 함수 ───
+    function render() {
+      // 1. 필터링
+      let list = todos.filter(t => {
+        if (currentTab === 'active') return !t.completed;
+        if (currentTab === 'completed') return t.completed;
+        if (currentTab === 'pinned') return t.pinned;
+        return true;
+      });
+
+      // 정렬 (고정 우선 ➔ 미완료 우선 ➔ 생성순)
+      list.sort((a, b) => {
+        if (a.pinned !== b.pinned) return b.pinned ? 1 : -1;
+        if (a.completed !== b.completed) return a.completed ? 1 : -1;
+        return b.createdAt - a.createdAt;
+      });
+
+      // 2. 프로그레스 바 (20개 블록 게이지)
+      const total = todos.length;
+      const done = todos.filter(t => t.completed).length;
+      const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+      percentText.textContent = `${pct}%`;
+
+      const numBlocks = Math.round((pct / 100) * 15);
+      progressBar.innerHTML = '';
+      for (let i = 0; i < 15; i++) {
+        const blk = document.createElement('div');
+        blk.className = 'retro-progress-block';
+        blk.style.backgroundColor = i < numBlocks ? 'var(--win-blue)' : 'transparent';
+        progressBar.appendChild(blk);
+      }
+
+      // 3. 상태바 업데이트
+      const pending = total - done;
+      statusCount.textContent = `남음: ${pending}개`;
+      statusText.textContent = `전체 ${total}개 중 ${done}개 완료됨`;
+
+      // 4. 목록 HTML 생성
+      if (list.length === 0) {
+        todoListEl.innerHTML = `
+          <div style="padding:20px; text-align:center; color:#888; font-size:11px;">
+            [파일 없음 / NO TASKS]<br>새로운 작업을 추가하십시오.
+          </div>
+        `;
+        return;
+      }
+
+      todoListEl.innerHTML = list.map(t => {
+        const prioClass = t.prio === '높음' ? 'badge-high' : '';
+        return `
+          <div class="retro-item ${t.completed ? 'completed' : ''}" data-id="${t.id}">
+            <div class="retro-chk" onclick="toggleComplete('${t.id}')">
+              ${t.completed ? 'V' : ''}
+            </div>
+            <div class="item-content" ondblclick="openModal('${t.id}')">
+              <div class="item-text">${escapeHtml(t.text)}</div>
+              <div class="item-meta">
+                <span class="retro-badge">${t.cat || '기타'}</span>
+                <span class="retro-badge ${prioClass}">${t.prio || '보통'}</span>
+                ${t.pinned ? '<span class="retro-badge" style="background:#ffffaa; color:#000;">★고정</span>' : ''}
+              </div>
+            </div>
+            <div class="item-actions">
+              <button class="retro-btn mini-btn" onclick="togglePin('${t.id}')" title="상단 고정">${t.pinned ? '★' : '☆'}</button>
+              <button class="retro-btn mini-btn" onclick="openModal('${t.id}')" title="수정">E</button>
+              <button class="retro-btn mini-btn" onclick="deleteTodo('${t.id}')" title="삭제" style="color:red;">X</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    // ─── CRUD 동작 ───
+    function addTodo() {
+      const val = inputEl.value.trim();
+      if (!val) { inputEl.focus(); return; }
+      soundClick();
+      todos.unshift({
+        id: 't_' + Date.now(),
+        text: val,
+        cat: catSelect.value,
+        prio: prioSelect.value,
+        completed: false,
+        pinned: false,
+        createdAt: Date.now()
+      });
+      inputEl.value = '';
+      save();
+      inputEl.focus();
+    }
+
+    addBtn.addEventListener('click', addTodo);
+    inputEl.addEventListener('keydown', e => { if (e.key === 'Enter') addTodo(); });
+
+    function toggleComplete(id) {
+      soundCheck();
+      const t = todos.find(item => item.id === id);
+      if (t) { t.completed = !t.completed; save(); }
+    }
+
+    function togglePin(id) {
+      soundClick();
+      const t = todos.find(item => item.id === id);
+      if (t) { t.pinned = !t.pinned; save(); }
+    }
+
+    function deleteTodo(id) {
+      soundDelete();
+      todos = todos.filter(item => item.id !== id);
+      save();
+    }
+
+    // ─── 탭 전환 ───
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        soundClick();
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentTab = tab.dataset.tab;
+        render();
+      });
+    });
+
+    // ─── 모달 수정 ───
+    function openModal(id) {
+      soundClick();
+      const t = todos.find(item => item.id === id);
+      if (!t) return;
+      editId = id;
+      modalTextInput.value = t.text;
+      modalCat.value = t.cat || '기타';
+      modalPrio.value = t.prio || '보통';
+      modalOverlay.classList.add('active');
+      modalTextInput.focus();
+    }
+
+    function closeModal() {
+      modalOverlay.classList.remove('active');
+      editId = null;
+    }
+
+    modalCloseX.addEventListener('click', closeModal);
+    modalCancelBtn.addEventListener('click', closeModal);
+    modalSaveBtn.addEventListener('click', () => {
+      const val = modalTextInput.value.trim();
+      if (!val) return;
+      soundClick();
+      const t = todos.find(item => item.id === editId);
+      if (t) {
+        t.text = val;
+        t.cat = modalCat.value;
+        t.prio = modalPrio.value;
+        save();
+      }
+      closeModal();
+    });
+
+    // 사운드 토글
+    soundToggleBtn.addEventListener('click', () => {
+      soundEnabled = !soundEnabled;
+      soundToggleBtn.textContent = soundEnabled ? '🔊' : '🔇';
+    });
+
+    // 메뉴 바 기능
+    menuNew.addEventListener('click', () => {
+      inputEl.focus();
+    });
+
+    menuClear.addEventListener('click', () => {
+      const done = todos.filter(t => t.completed).length;
+      if (done === 0) { alert('완료된 항목이 없습니다.'); return; }
+      if (confirm(`완료된 항목 ${done}개를 영구 삭제하시겠습니까?`)) {
+        soundDelete();
+        todos = todos.filter(t => !t.completed);
+        save();
+      }
+    });
+
+    menuExport.addEventListener('click', () => {
+      soundClick();
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(todos, null, 2));
+      const a = document.createElement('a');
+      a.href = dataStr;
+      a.download = `TASKS98_${Date.now()}.json`;
+      a.click();
+    });
+
+    menuImport.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = evt => {
+        try {
+          const parsed = JSON.parse(evt.target.result);
+          if (Array.isArray(parsed)) {
+            todos = parsed;
+            save();
+            alert('데이터 로드 완료!');
+          }
+        } catch(err) { alert('파일 오류!'); }
+      };
+      reader.readAsText(file);
+      fileInput.value = '';
+    });
+
+    // 시작
+    init();
+  </script>
+</body>
+</html>
